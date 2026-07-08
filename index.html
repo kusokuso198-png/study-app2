@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>集合・場合の数 問題集</title>
+    
+    <!-- PWA用iOSメタタグ -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="数学問題集">
+
+    <style>
+        :root {
+            /* ライトモード変数 */
+            --bg-color: #f4f7f6;
+            --text-color: #333333;
+            --card-bg: #ffffff;
+            --primary-color: #007aff;
+            --primary-hover: #005bb5;
+            --secondary-color: #e5e5ea;
+            --secondary-text: #8e8e93;
+            --border-color: #d1d1d6;
+            --success-color: #34c759;
+            --danger-color: #ff3b30;
+            --fav-color: #ffcc00;
+        }
+
+        [data-theme="dark"] {
+            /* ダークモード変数 */
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --primary-color: #0a84ff;
+            --primary-hover: #0066cc;
+            --secondary-color: #2c2c2e;
+            --secondary-text: #8e8e93;
+            --border-color: #3a3a3c;
+            --success-color: #30d158;
+            --danger-color: #ff453a;
+            --fav-color: #ffd60a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-size: 16px;
+        }
+
+        /* ヘッダー */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* メインコンテンツ */
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* カードデザイン */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .q-number {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--secondary-text);
+            background-color: var(--secondary-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .fav-btn {
+            font-size: 26px;
+            color: var(--border-color);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.1s;
+        }
+        .fav-btn.active {
+            color: var(--fav-color);
+        }
+        .fav-btn:active {
+            transform: scale(1.2);
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            word-break: auto-phrase;
+        }
+
+        /* 解答エリア */
+        #answer-area {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        #answer-area.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .answer-label { font-weight: bold; color: var(--danger-color); margin-bottom: 5px; font-size: 14px; }
+        .answer-text { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--danger-color); }
+        .exp-label { font-weight: bold; color: var(--primary-color); margin-bottom: 5px; font-size: 14px; }
+        .exp-text { font-size: 16px; color: var(--text-color); }
+
+        /* コントロールボタン群 */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            padding-bottom: 20px;
+        }
+
+        button.btn {
+            flex: 1;
+            padding: 16px 10px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.2s;
+            min-height: 54px;
+        }
+
+        button.btn:active { opacity: 0.7; }
+        button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-primary { background-color: var(--primary-color); color: #fff; }
+        .btn-secondary { background-color: var(--secondary-color); color: var(--text-color); }
+
+        /* テストモード用ボタン */
+        .test-controls {
+            display: none;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .test-controls.show { display: flex; }
+        .btn-correct { background-color: var(--success-color); color: #fff; }
+        .btn-incorrect { background-color: var(--danger-color); color: #fff; }
+
+        /* メニュー（ドロワー） */
+        #menu-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none; z-index: 20; opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #menu-overlay.show { display: block; opacity: 1; }
+
+        #menu-drawer {
+            position: fixed; bottom: -100%; left: 0; right: 0;
+            background-color: var(--card-bg);
+            border-radius: 20px 20px 0 0;
+            padding: 20px; z-index: 30;
+            transition: bottom 0.3s cubic-bezier(0.1, 0.8, 0.2, 1);
+            max-height: 85vh; overflow-y: auto;
+        }
+        #menu-drawer.show { bottom: 0; }
+
+        .menu-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-section { margin-bottom: 20px; }
+        .menu-section h3 { font-size: 14px; color: var(--secondary-text); margin-bottom: 10px; }
+
+        .toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border-color);
+        }
+
+        select, input[type="checkbox"] { font-size: 16px; padding: 8px; }
+        select.jump-select {
+            width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid var(--border-color); background-color: var(--bg-color);
+            color: var(--text-color); margin-top: 10px;
+        }
+
+        .stats {
+            background-color: var(--bg-color); padding: 15px;
+            border-radius: 8px; text-align: center; font-size: 14px;
+        }
+
+        /* ユーティリティ */
+        .overline { text-decoration: overline; }
+
+        /* 再開モーダル */
+        #start-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none; z-index: 100;
+            align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        #start-modal-overlay.show { display: flex; opacity: 1; }
+        .start-modal-content {
+            width: 90%; max-width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>集合・場合の数</h1>
+        <div class="header-buttons">
+            <button class="icon-btn" id="themeBtn" aria-label="テーマ切替">☀️</button>
+            <button class="icon-btn" id="menuBtn" aria-label="メニュー">☰</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="card">
+            <div class="q-header">
+                <span class="q-number" id="qNumDisplay">1 / 50</span>
+                <button class="fav-btn" id="favBtn" aria-label="お気に入り">☆</button>
+            </div>
+            <div class="question-text" id="qText">問題文を読み込んでいます...</div>
+        </div>
+
+        <div class="card" id="answer-area">
+            <div class="answer-label">【解答】</div>
+            <div class="answer-text" id="aText"></div>
+            <div class="exp-label">【解説】</div>
+            <div class="exp-text" id="eText"></div>
+            
+            <div class="test-controls" id="testControls">
+                <button class="btn btn-incorrect" id="btnIncorrect">✕ 不正解</button>
+                <button class="btn btn-correct" id="btnCorrect">〇 正解</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="prevBtn">◀ 前へ</button>
+            <button class="btn btn-primary" id="showBtn">回答を表示</button>
+            <button class="btn btn-secondary" id="nextBtn">次へ ▶</button>
+        </div>
+    </main>
+
+    <!-- 再開モーダル -->
+    <div id="start-modal-overlay">
+        <div class="card start-modal-content">
+            <h2 style="font-size: 18px; margin-bottom: 10px;">学習を再開しますか？</h2>
+            <p style="margin-bottom: 20px; font-size: 14px; color: var(--secondary-text);">
+                前回は <strong style="color: var(--text-color);">Q<span id="last-q-num"></span></strong> まで学習しました。
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" id="btnStartOver">最初から</button>
+                <button class="btn btn-primary" id="btnResume">続きから</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メニューオーバーレイ -->
+    <div id="menu-overlay"></div>
+    <div id="menu-drawer">
+        <div class="menu-header">
+            <h2>設定・メニュー</h2>
+            <button class="icon-btn" id="closeMenuBtn">✕</button>
+        </div>
+
+        <div class="menu-section">
+            <h3>学習モード設定</h3>
+            <div class="toggle-row">
+                <label for="randomToggle">🔀 ランダム出題</label>
+                <input type="checkbox" id="randomToggle">
+            </div>
+            <div class="toggle-row">
+                <label for="testToggle">📝 テストモード（自己採点）</label>
+                <input type="checkbox" id="testToggle">
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h3>絞り込み (フィルター)</h3>
+            <div class="toggle-row">
+                <label for="favFilterToggle">⭐ お気に入りのみ</label>
+                <input type="checkbox" id="favFilterToggle">
+            </div>
+            <div class="toggle-row">
+                <label for="retryFilterToggle">🔄 もう一度解く（不正解のみ）</label>
+                <input type="checkbox" id="retryFilterToggle">
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h3>問題ジャンプ</h3>
+            <select class="jump-select" id="jumpSelect"></select>
+        </div>
+
+        <div class="menu-section">
+            <h3>学習記録</h3>
+            <div class="stats" id="statsDisplay">
+                <div id="timeDisplay" style="font-weight: bold; margin-bottom: 10px; color: var(--primary-color);">累計学習時間: 0分0秒</div>
+                <div>正解: 0 / 不正解: 0<br><span style="font-size: 12px; color: var(--secondary-text);">(テストモードで解答すると記録されます)</span></div>
+            </div>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 10px; min-height: 40px;" id="resetStatsBtn">記録をリセット</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 問題データ (全50問・前回の内容をそのまま維持) ---
+        const quizData = [
+            { id: 1, q: "集合Aの要素の個数を表す数学記号を頭に思い浮かべてください。", a: "n(A)", exp: "個数を表すときは Number の頭文字 n を使って n(A) と書きます。" },
+            { id: 2, q: "「AかつB」を表す記号は A ∪ B と A ∩ B のどちらですか。", a: "A ∩ B", exp: "「かつ（共通部分）」は ∩ の記号を使います。" },
+            { id: 3, q: "「AまたはB」を表す記号は A ∪ B と A ∩ B のどちらですか。", a: "A ∪ B", exp: "「または（和集合）」は ∪ の記号を使います。" },
+            { id: 4, q: "「Aではない」という補集合を表す記号はどう書きますか。", a: "<span class='overline'>A</span>", exp: "Aの上に線を引いて「Aバー（補集合）」と表します。" },
+            { id: 5, q: "「A、Bの少なくとも一方」という言葉を集合の記号で表すとき、使うのは和集合（∪）、共通部分（∩）のどちらですか。", a: "和集合（∪）", exp: "「AかBの少なくとも一方」は「AまたはB」と同じ意味になるため、和集合を使います。" },
+            { id: 6, q: "個数定理の公式です。n(A ∪ B) = n(A) + n(B) - 【？】。空欄に入る記号は何ですか。", a: "n(A ∩ B)", exp: "Aの個数とBの個数を足した後、重なっている部分（共通部分）を引きます。" },
+            { id: 7, q: "上の公式で、最後に引き算をするのはなぜですか。「〇〇して数えてしまうから」の〇〇に入る言葉は何でしょう。", a: "重複", exp: "AとBの両方に属する要素を、Aの時とBの時で「2回（重複して）」数えてしまっているからです。" },
+            { id: 8, q: "事柄Aと事柄Bが「同時に起こらない」とき、AまたはBが起こる場合の数は「何（〇）の法則」を使いますか。", a: "和の法則", exp: "同時に起こらない場合は、それぞれの場合の数を足し算します。" },
+            { id: 9, q: "事柄Aが起こり、そのそれぞれの場合について事柄Bが起こるとき、全体の場合の数は「何（〇）の法則」を使いますか。", a: "積の法則", exp: "事柄が連続して起こる場合や、組み合わせる場合は掛け算をします。" },
+            { id: 10, q: "和の法則の計算は「たし算」「かけ算」のどちらですか。", a: "たし算", exp: "和の法則なので足し合わせます（a + b）。" },
+            { id: 11, q: "積の法則の計算は「たし算」「かけ算」のどちらですか。", a: "かけ算", exp: "積の法則なので掛け合わせます（a × b）。" },
+            { id: 12, q: "すべての場合をもれなく書き出す際、単語のようにアルファベット順に並べる方法を何と言いますか。", a: "辞書式配列法", exp: "アルファベット順（辞書の順番）に並べることで、もれや重複を防ぎます。" },
+            { id: 13, q: "次々と枝分かれしていく図をかいて場合の数を整理する方法を何と言いますか。", a: "樹形図", exp: "木の枝のように場合分けをかいていく図形のことです。" },
+            { id: 14, q: "補集合の個数 n(<span class='overline'>A</span>) を求めるには、全体集合の個数 n(U) から何を引けばよいですか。", a: "n(A)（Aの要素の個数）", exp: "全体からAの分を取り除くことで、「Aではない」個数がわかります。" },
+            { id: 15, q: "「AでもBでもない」を記号で表すと <span class='overline'>A</span> ∩ <span class='overline'>B</span> と <span class='overline'>A</span> ∪ <span class='overline'>B</span> のどちらですか。", a: "<span class='overline'>A</span> ∩ <span class='overline'>B</span>", exp: "「Aではない」かつ「Bではない」なので、共通部分（∩）を使います。" },
+            { id: 16, q: "ド・モルガンの法則です。<span class='overline'>A ∪ B</span> と全く同じ意味になるのは、<span class='overline'>A</span> ∩ <span class='overline'>B</span>、それとも <span class='overline'>A</span> ∪ <span class='overline'>B</span> ですか。", a: "<span class='overline'>A</span> ∩ <span class='overline'>B</span>", exp: "ド・モルガンの法則です。全体のバーが切れると、∪ は ∩ にひっくり返ります。" },
+            { id: 17, q: "ド・モルガンの法則です。<span class='overline'>A ∩ B</span> と全く同じ意味になるのは、<span class='overline'>A</span> ∩ <span class='overline'>B</span>、それとも <span class='overline'>A</span> ∪ <span class='overline'>B</span> ですか。", a: "<span class='overline'>A</span> ∪ <span class='overline'>B</span>", exp: "同様に全体のバーが切れると、∩ は ∪ にひっくり返ります。" },
+            { id: 18, q: "「3の倍数の集合A」と「8の倍数の集合B」があります。共通部分 A ∩ B は「何の倍数」の集合になりますか。", a: "24の倍数（最小公倍数）", exp: "3の倍数でもあり、8の倍数でもある数は、3と8の最小公倍数である24の倍数になります。" },
+            { id: 19, q: "全体集合を長方形、部分集合を円で表して、視覚的に整理する図を何と言いますか。", a: "ベン図", exp: "集合の関係を視覚的に捉えるのに非常に便利な図です。" },
+            { id: 20, q: "○×問題。樹形図をかくときは、必ずすべての枝を最後までかき切らなければならない。", a: "×（バツ）", exp: "勝負が決まった場合など、明らかになった先の枝は省いて（かかなくて）構いません。" },
+            { id: 21, q: "集合AとBが全く重ならない（A ∩ B = ∅）とき、n(A ∪ B) はどんな式で求められますか。", a: "n(A) + n(B)", exp: "重なる部分がない（n(A ∩ B)=0）ため、単純に足し算するだけで求められます。" },
+            { id: 22, q: "「3で割り切れない数」の個数を求めたいとき、直接数えるのと、補集合の考え方（全体から3で割り切れる数を引く）を使うのとでは、どちらが基本ですか。", a: "補集合の考え方", exp: "「〜でない」を直接数えるのは難しいため、全体から「〜である」を引くのが基本です。" },
+            { id: 23, q: "集合の問題で「方程式を作る」解法を使う場合、わからない部分（例：共通部分）をどんな文字で置くのが一般的ですか。", a: "x", exp: "わからない部分を x と置いて方程式を立てると、パズルを解くように答えが出せます。" },
+            { id: 24, q: "ド・モルガンの法則は、ただ暗記するのではなく、何をかいて考えるとよいとされていますか。", a: "ベン図", exp: "公式の丸暗記ではなく、ベン図をかいて視覚的に対応させることが大切だと資料に書かれています。" },
+            { id: 25, q: "1から100までの整数で、3で割り切れる数は何個ありますか（暗算で）。", a: "33個", exp: "100 ÷ 3 = 33 あまり 1。よって33個です（頭の中でパッと割り算します）。" },
+            { id: 26, q: "樹形図をかくときのポイントは「一定の方針で、〇〇正しくかく」こと。〇〇に入る漢字2文字は？", a: "順序", exp: "思いつきで書くのではなく、一定のルール（順序）でかくことが「もれ・重複」を防ぐコツです。" },
+            { id: 27, q: "事柄Aの起こり方が a 通り、事柄Bの起こり方が b 通りあります。同時に起こらないとき、AまたはBが起こる場合の数を式で表してください。", a: "a + b", exp: "和の法則なので、それぞれの通りを足します。" },
+            { id: 28, q: "事柄Aの起こり方が a 通りあり、そのそれぞれに事柄Bが b 通り起こるとき、全体の場合の数を式で表してください。", a: "a × b", exp: "積の法則なので、それぞれの通りを掛けます。" },
+            { id: 29, q: "○×問題。ド・モルガンの法則は、要素の個数を求める問題だけでなく、確率など様々な場面で「少なくとも」や「〜でない」を処理するのに役立つ基本法則である。", a: "○", exp: "集合の個数定理だけでなく、今後の様々な単元で使う重要な考え方です。" },
+            { id: 30, q: "ある競技で「3勝すれば勝ち抜け」というルールがあります。樹形図をかく際、3勝した後の試合の枝はどうしますか。", a: "かかなくてよい（省く）", exp: "3勝した時点でゲーム終了となるため、それ以降の勝敗は考えません。" },
+            { id: 31, q: "「バス通学の集合A」と「自転車通学の集合B」があります。「バスだけで通学している人」の人数を数式で表すと、n(A) - 【？】 になります。空欄は何ですか。", a: "n(A ∩ B)（共通部分の人数）", exp: "Aの円全体から、Bと重なっている部分を取り除くことで「Aだけ」の人数になります。" },
+            { id: 32, q: "「AでもBでもない」人数の個数がわかっているとき、ベン図の中で計算できるのは「AとBの和集合」ですか、それとも「共通部分」ですか。", a: "AとBの和集合", exp: "「どちらでもない」がわかれば、全体からそれを引くことで「どちらかには入っている（和集合）」人数がわかります。" },
+            { id: 33, q: "「3でも8でも割り切れない」整数の集合は、ド・モルガンの法則を利用すると「何の補集合」と言い換えられますか。", a: "「3または8で割り切れる数」の補集合", exp: "<span class='overline'>A</span> ∩ <span class='overline'>B</span> は、ド・モルガンの法則で <span class='overline'>A ∪ B</span> と言い換えられます。" },
+            { id: 34, q: "「3で割り切れる、または8で割り切れる数」の個数を求める際、なぜ「24で割り切れる数」の個数を引かなければいけないのですか。", a: "「3の倍数」と「8の倍数」の両方で重複して数えてしまっているから。", exp: "個数定理の n(A ∩ B) にあたる部分です。" },
+            { id: 35, q: "全体が50人、Aが30人、Bが25人のとき、AとBの和集合の最大人数は何人ですか。（暗算で）", a: "50人", exp: "全体が50人なので、和集合が全体を超えることはありません（最大でも全員の50人）。" },
+            { id: 36, q: "上の問題（全体50人、Aが30人、Bが25人）のとき、AとBの両方に属する人は「最低でも」何人いますか。（暗算で）", a: "5人", exp: "30 + 25 = 55人。全体50人を5人オーバーするので、最低でも5人は両方に属している（共通部分）必要があります。" },
+            { id: 37, q: "勝負の樹形図で「最大6試合、3勝で勝ち抜け」のとき、4試合終わって「1勝3敗」でした。5試合目以降の枝はかく必要がありますか。", a: "かく必要はない", exp: "残り2試合を両方勝っても合計3勝にならず、勝ち抜けが不可能だからです。" },
+            { id: 38, q: "その理由はなぜですか。", a: "残り全勝しても条件（3勝）を満たせないことが確定したから。", exp: "樹形図は「明らかに条件を満たせない」とわかった時点で枝を打ち切ります。" },
+            { id: 39, q: "「Aではない、またはBではない」をド・モルガンの法則で一つの補集合（バー）にまとめるとどうなりますか。", a: "<span class='overline'>A ∩ B</span>", exp: "ド・モルガンの法則（逆向き）です。<span class='overline'>A</span> ∪ <span class='overline'>B</span> は <span class='overline'>A ∩ B</span> になります。" },
+            { id: 40, q: "和集合の要素の個数を求める問題では、「順に求める方法」ともう一つ、「〇〇を作る方法」があります。何を作りますか。", a: "方程式", exp: "直接公式に当てはめるのが難しい場合、x を使って方程式を立てる解法が有効です。" },
+            { id: 41, q: "「和の法則」と「積の法則」、どちらを使うか迷ったときの判断基準は何ですか。", a: "事柄が「同時に起こらない（別々か）」か、「連続して（ペアで）起こるか」", exp: "別々のパターンの足し合わせなら「和」、それぞれのケースに対してさらに分岐するなら「積」です。" },
+            { id: 42, q: "集合の要素の個数を求める計算で、「バス通学と自転車通学のどちらもいない者」が10人、全体が50人のとき、「バスまたは自転車を利用している人」は何人ですか。", a: "40人", exp: "全体（50人）から、どちらでもない人（10人）を引けば、少なくとも一方を利用している人（和集合）が出ます。" },
+            { id: 43, q: "問題文に「少なくとも一方は〜」という言葉が出たとき、すぐに頭に思い浮かべるべき集合の図形（ベン図）の範囲はどこですか。", a: "2つの円を合わせた雪だるまのような形全体（和集合 A ∪ B）", exp: "「少なくとも一方は〜」＝「AまたはB」なので和集合です。" },
+            { id: 44, q: "「辞書式配列法」で文字を並べるとき、重複を防ぐために最も重要なルールは何ですか。", a: "アルファベット順などの一定の順序を必ず守ること。", exp: "思いつきで書き出すと必ず抜け漏れや重複が発生します。" },
+            { id: 45, q: "○×問題。集合の問題文に「Aではない」とあれば、必ず和集合の公式を使わなければならない。", a: "×（バツ）", exp: "「Aではない」は補集合なので、全体からAを引く考え方（n(U) - n(A)）を使います。" },
+            { id: 46, q: "「バス通学者の集合A」「自転車通学者の集合B」について、AとBの人数、および「どちらでもない人数」だけがわかっている状態から「両方で通学している人数」を求めます。このとき、方程式を作るために未知数 x と置くべきなのはベン図のどの部分ですか。", a: "AとBの共通部分（A ∩ B）", exp: "重なっている部分を x と置くことで、「Aだけ」「Bだけ」を x を使った式で表しやすくなります。" },
+            { id: 47, q: "上の問題で、x を使って全体の人数（50人）を表す方程式を立てる場合、「50 = Aの人数 ＋ Bの人数 － x ＋ 【？】」となります。空欄に入るのはどこの人数ですか。", a: "どちらでもない人数（<span class='overline'>A</span> ∩ <span class='overline'>B</span>）", exp: "「Aの人数＋Bの人数－重なり(x)」で和集合が出ます。それに「外側の人数（どちらでもない）」を足せば全体になります。" },
+            { id: 48, q: "樹形図をかくとき「枝を途中で打ち切る（かかなくてよい）条件」は、大きく分けて2つのパターンがあります。「すでに条件を満たしたとき」と、もう一つはどんなときですか。", a: "これ以上続けても絶対に条件を満たせなくなったとき", exp: "無駄な枝をかかないことが、複雑な樹形図を正確にかき上げるコツです。" },
+            { id: 49, q: "ある問題を解くとき、「直接数え上げる方法（和集合）」と「補集合を利用する方法（全体から引く）」のどちらを使うべきか、判断する基準となる考え方を説明してください。", a: "条件を満たす場合を数えるより、条件を満たさない場合を数える方が、計算がシンプルになるかどうか。", exp: "問題文に「少なくとも」「〜でない」が含まれる場合、補集合の方が計算ステップが減るケースがほとんどです。" },
+            { id: 50, q: "資料にあるように、応用問題で「複雑な言葉の条件」が出てきてどう計算すればいいか迷ったとき、一番最初に行うべき思考のステップは何ですか。", a: "問題の内容の言葉を、「集合の記号」に対応させて整理すること。", exp: "言葉のままだと混乱するため、まずは問題文を「集合の数式」に翻訳（言い換え）することが第一歩です。" }
+        ];
+
+        // --- アプリの状態管理 ---
+        let state = {
+            currentIndex: 0,
+            questionList: [],
+            favorites: new Set(),
+            testScores: {},
+            lastQuestionId: null,
+            studyTimeSeconds: 0,
+            isRandom: false,
+            isTestMode: false,
+            filterFav: false,
+            filterRetry: false,
+            isAnswerShown: false,
+            timerInterval: null
+        };
+
+        // --- DOM要素の取得 ---
+        const els = {
+            qNum: document.getElementById('qNumDisplay'),
+            qText: document.getElementById('qText'),
+            aArea: document.getElementById('answer-area'),
+            aText: document.getElementById('aText'),
+            eText: document.getElementById('eText'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            showBtn: document.getElementById('showBtn'),
+            favBtn: document.getElementById('favBtn'),
+            themeBtn: document.getElementById('themeBtn'),
+            menuBtn: document.getElementById('menuBtn'),
+            closeMenu: document.getElementById('closeMenuBtn'),
+            overlay: document.getElementById('menu-overlay'),
+            drawer: document.getElementById('menu-drawer'),
+            jumpSelect: document.getElementById('jumpSelect'),
+            randToggle: document.getElementById('randomToggle'),
+            testToggle: document.getElementById('testToggle'),
+            favToggle: document.getElementById('favFilterToggle'),
+            retryToggle: document.getElementById('retryFilterToggle'),
+            testControls: document.getElementById('testControls'),
+            btnCorrect: document.getElementById('btnCorrect'),
+            btnIncorrect: document.getElementById('btnIncorrect'),
+            statsDisplay: document.getElementById('statsDisplay'),
+            timeDisplay: document.getElementById('timeDisplay'),
+            resetStats: document.getElementById('resetStatsBtn'),
+            startModal: document.getElementById('start-modal-overlay'),
+            btnStartOver: document.getElementById('btnStartOver'),
+            btnResume: document.getElementById('btnResume'),
+            lastQNum: document.getElementById('last-q-num')
+        };
+
+        // --- 初期化 ---
+        function init() {
+            setupPWA();
+            loadLocalData();
+            initTheme();
+            buildSelectOptions();
+            setupEventListeners();
+            startTimer();
+
+            // 前回学習した履歴があるか確認
+            if (state.lastQuestionId) {
+                els.lastQNum.textContent = state.lastQuestionId;
+                els.startModal.classList.add('show');
+            } else {
+                applyFilters();
+            }
+        }
+
+        // --- PWA対応 (アイコン・マニフェスト・ServiceWorkerの自己生成) ---
+        function setupPWA() {
+            try {
+                // アイコンをCanvasで動的生成
+                const canvas = document.createElement('canvas');
+                canvas.width = 512; canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#007aff';
+                ctx.fillRect(0, 0, 512, 512);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 250px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Q', 256, 256 + 20);
+                const iconDataUrl = canvas.toDataURL('image/png');
+
+                // Apple Touch Iconの追加
+                const appleIcon = document.createElement('link');
+                appleIcon.rel = 'apple-touch-icon';
+                appleIcon.href = iconDataUrl;
+                document.head.appendChild(appleIcon);
+
+                // マニフェストの追加
+                const manifest = {
+                    name: "集合・場合の数 問題集",
+                    short_name: "数学問題集",
+                    start_url: window.location.href.split('?')[0],
+                    display: "standalone",
+                    background_color: "#f4f7f6",
+                    theme_color: "#007aff",
+                    icons: [{ src: iconDataUrl, sizes: "512x512", type: "image/png" }]
+                };
+                const manifestLink = document.createElement('link');
+                manifestLink.rel = 'manifest';
+                manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+                document.head.appendChild(manifestLink);
+
+                // Service Worker (オフラインキャッシュ用)
+                const swCode = `
+                    self.addEventListener('install', (e) => { self.skipWaiting(); });
+                    self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            fetch(e.request).catch(() => new Response('オフライン動作中', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register(swUrl).catch(e => console.log('SW Setup Skipped'));
+                }
+            } catch(e) { console.error("PWA Setup Error:", e); }
+        }
+
+        // --- イベントリスナー設定 ---
+        function setupEventListeners() {
+            els.showBtn.addEventListener('click', toggleAnswer);
+            els.nextBtn.addEventListener('click', () => navigate(1));
+            els.prevBtn.addEventListener('click', () => navigate(-1));
+            els.favBtn.addEventListener('click', toggleFavorite);
+            els.menuBtn.addEventListener('click', openMenu);
+            els.closeMenu.addEventListener('click', closeMenu);
+            els.overlay.addEventListener('click', closeMenu);
+            els.themeBtn.addEventListener('click', toggleTheme);
+
+            els.randToggle.addEventListener('change', (e) => { state.isRandom = e.target.checked; applyFilters(); });
+            els.testToggle.addEventListener('change', (e) => { state.isTestMode = e.target.checked; updateUI(); });
+            els.favToggle.addEventListener('change', (e) => { state.filterFav = e.target.checked; applyFilters(); });
+            els.retryToggle.addEventListener('change', (e) => { state.filterRetry = e.target.checked; applyFilters(); });
+
+            els.jumpSelect.addEventListener('change', (e) => {
+                const targetId = parseInt(e.target.value);
+                const newIndex = state.questionList.indexOf(targetId);
+                if(newIndex !== -1) {
+                    state.currentIndex = newIndex;
+                    closeMenu();
+                    renderQuestion();
+                }
+            });
+
+            els.btnCorrect.addEventListener('click', () => recordScore(true));
+            els.btnIncorrect.addEventListener('click', () => recordScore(false));
+            els.resetStats.addEventListener('click', () => {
+                if(confirm("正誤履歴と学習時間をリセットしますか？")) {
+                    state.testScores = {};
+                    state.studyTimeSeconds = 0;
+                    saveLocalData();
+                    updateStatsDisplay();
+                    if(state.filterRetry) applyFilters();
+                }
+            });
+
+            // 再開モーダルのボタン
+            els.btnStartOver.addEventListener('click', () => {
+                els.startModal.classList.remove('show');
+                applyFilters(); // Q1からスタート
+            });
+            
+            els.btnResume.addEventListener('click', () => {
+                els.startModal.classList.remove('show');
+                applyFilters(true); // 前回IDからスタート
+            });
+
+            // ページ非表示時・終了時にも保存
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === 'hidden') saveLocalData();
+            });
+        }
+
+        // --- ローカルストレージ管理 ---
+        function loadLocalData() {
+            const savedFavs = localStorage.getItem('quizFavs');
+            if (savedFavs) state.favorites = new Set(JSON.parse(savedFavs));
+            
+            const savedScores = localStorage.getItem('quizScores');
+            if (savedScores) state.testScores = JSON.parse(savedScores);
+
+            const savedLastQ = localStorage.getItem('quizLastQ');
+            if (savedLastQ) state.lastQuestionId = parseInt(savedLastQ);
+
+            const savedTime = localStorage.getItem('quizTime');
+            if (savedTime) state.studyTimeSeconds = parseInt(savedTime);
+            
+            updateStatsDisplay();
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('quizFavs', JSON.stringify(Array.from(state.favorites)));
+            localStorage.setItem('quizScores', JSON.stringify(state.testScores));
+            if(state.questionList.length > 0) {
+                localStorage.setItem('quizLastQ', state.questionList[state.currentIndex]);
+            }
+            localStorage.setItem('quizTime', state.studyTimeSeconds);
+        }
+
+        // --- 学習時間計測 ---
+        function startTimer() {
+            state.timerInterval = setInterval(() => {
+                state.studyTimeSeconds++;
+                if (state.studyTimeSeconds % 10 === 0) saveLocalData(); // 10秒ごとに自動保存
+                updateStatsDisplay();
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            let timeStr = "";
+            if (h > 0) timeStr += `${h}時間`;
+            if (m > 0 || h > 0) timeStr += `${m}分`;
+            timeStr += `${s}秒`;
+            return timeStr;
+        }
+
+        // --- テーマ設定 ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('quizTheme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                els.themeBtn.textContent = '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                els.themeBtn.textContent = '☀️';
+                localStorage.setItem('quizTheme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                els.themeBtn.textContent = '🌙';
+                localStorage.setItem('quizTheme', 'dark');
+            }
+        }
+
+        // --- リスト生成とフィルタリング ---
+        function applyFilters(isResume = false) {
+            let list = quizData.map(q => q.id);
+
+            if (state.filterFav) list = list.filter(id => state.favorites.has(id));
+            if (state.filterRetry) list = list.filter(id => state.testScores[id] === false);
+
+            if (list.length === 0) {
+                alert("該当する問題がありません。フィルターを解除します。");
+                state.filterFav = false;
+                state.filterRetry = false;
+                els.favToggle.checked = false;
+                els.retryToggle.checked = false;
+                list = quizData.map(q => q.id);
+            }
+
+            if (state.isRandom) list = shuffleArray(list);
+
+            state.questionList = list;
+            
+            // 続きから再開の場合、インデックスを復元
+            if (isResume && state.lastQuestionId) {
+                const idx = state.questionList.indexOf(state.lastQuestionId);
+                state.currentIndex = (idx !== -1) ? idx : 0;
+            } else {
+                state.currentIndex = 0;
+            }
+            
+            renderQuestion();
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // --- 問題描画 ---
+        function renderQuestion() {
+            state.isAnswerShown = false;
+            els.aArea.classList.remove('show');
+            
+            const currentId = state.questionList[state.currentIndex];
+            const qData = quizData.find(q => q.id === currentId);
+
+            els.qNum.textContent = `Q${currentId} (${state.currentIndex + 1} / ${state.questionList.length})`;
+            els.qText.innerHTML = qData.q;
+            els.aText.innerHTML = qData.a;
+            els.eText.innerHTML = qData.exp;
+
+            if (state.favorites.has(currentId)) {
+                els.favBtn.textContent = '★';
+                els.favBtn.classList.add('active');
+            } else {
+                els.favBtn.textContent = '☆';
+                els.favBtn.classList.remove('active');
+            }
+
+            els.jumpSelect.value = currentId;
+            saveLocalData(); // 現在の問題番号を保存
+            updateUI();
+        }
+
+        function toggleAnswer() {
+            state.isAnswerShown = true;
+            els.aArea.classList.add('show');
+            updateUI();
+        }
+
+        function navigate(direction) {
+            const newIndex = state.currentIndex + direction;
+            if (newIndex >= 0 && newIndex < state.questionList.length) {
+                state.currentIndex = newIndex;
+                renderQuestion();
+            }
+        }
+
+        // --- UI更新・テスト記録 ---
+        function updateUI() {
+            els.prevBtn.disabled = state.currentIndex === 0;
+            els.nextBtn.disabled = state.currentIndex === state.questionList.length - 1;
+
+            if (state.isTestMode && state.isAnswerShown) {
+                els.testControls.classList.add('show');
+                els.nextBtn.style.display = 'none';
+                els.showBtn.style.display = 'none';
+            } else {
+                els.testControls.classList.remove('show');
+                els.nextBtn.style.display = 'block';
+                els.showBtn.style.display = state.isAnswerShown ? 'none' : 'block';
+            }
+        }
+
+        function toggleFavorite() {
+            const currentId = state.questionList[state.currentIndex];
+            if (state.favorites.has(currentId)) {
+                state.favorites.delete(currentId);
+                els.favBtn.textContent = '☆';
+                els.favBtn.classList.remove('active');
+            } else {
+                state.favorites.add(currentId);
+                els.favBtn.textContent = '★';
+                els.favBtn.classList.add('active');
+            }
+            saveLocalData();
+            
+            if(state.filterFav && !state.favorites.has(currentId) && state.favorites.size === 0) {
+                alert("お気に入りがなくなりました。フィルターを解除します。");
+                els.favToggle.checked = false;
+                state.filterFav = false;
+                applyFilters();
+            }
+        }
+
+        function recordScore(isCorrect) {
+            const currentId = state.questionList[state.currentIndex];
+            state.testScores[currentId] = isCorrect;
+            saveLocalData();
+            updateStatsDisplay();
+
+            if (state.currentIndex < state.questionList.length - 1) {
+                navigate(1);
+            } else {
+                alert("最後の問題まで完了しました！\nメニューから「もう一度解く」を選ぶと、間違えた問題だけを復習できます。");
+                renderQuestion();
+            }
+        }
+
+        function updateStatsDisplay() {
+            els.timeDisplay.textContent = `累計学習時間: ${formatTime(state.studyTimeSeconds)}`;
+            let correct = 0, incorrect = 0;
+            Object.values(state.testScores).forEach(score => { score ? correct++ : incorrect++; });
+            els.statsDisplay.childNodes[2].nodeValue = `正解: ${correct} / 不正解: ${incorrect}`;
+        }
+
+        // --- メニュー操作 ---
+        function openMenu() { els.overlay.classList.add('show'); els.drawer.classList.add('show'); }
+        function closeMenu() { els.overlay.classList.remove('show'); els.drawer.classList.remove('show'); }
+
+        function buildSelectOptions() {
+            els.jumpSelect.innerHTML = '';
+            quizData.forEach(q => {
+                const opt = document.createElement('option');
+                opt.value = q.id; opt.textContent = `Q${q.id}`;
+                els.jumpSelect.appendChild(opt);
+            });
+        }
+
+        // 実行
+        init();
+    </script>
+</body>
+</html>
